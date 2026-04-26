@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Plano Nutricional · Felipe Stoelben</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0f0f0f;
+    --white: #ffffff;
+    --cream: #faf9f6;
+    --border: #e8e4de;
+    --border-light: #f0ede8;
+    --accent: #c8522a;
+    --accent-light: #fdf0eb;
+    --muted: #8a857e;
+    --text: #1a1a1a;
+    --green: #2a5a3a;
+    --green-light: #edf5f0;
+    --blue: #1e3a5c;
+    --blue-light: #edf2f9;
+    --red-light: #fdeeed;
+    --red: #8a2020;
+    --amber: #7a4a10;
+    --amber-light: #fdf3e3;
+    --tag-time: #f0ede8;
+    --tag-time-text: #5a5550;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-header {
+    background: var(--black);
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.08;
+    pointer-events: none;
+  }
+  .header-eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .header-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+  .header-name em { color: var(--accent); font-style: italic; }
+  .header-meta {
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+  .header-meta b { color: rgba(255,255,255,0.7); font-weight: 500; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .stat {
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: white;
+    line-height: 1.1;
+  }
+  .stat-lbl {
+    font-size: 9px;
+    color: rgba(255,255,255,0.35);
+    margin-top: 3px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .tabs-wrap {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+  }
+  .tab-btn {
+    flex: 1;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 0;
+    text-align: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .section { padding: 1.5rem; }
+
+  .eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .fun-card {
+    background: var(--amber-light);
+    border: 1px solid #f0d8b0;
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 1rem;
+  }
+  .fun-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--amber);
+    margin-bottom: 5px;
+  }
+  .fun-text { font-size: 12px; color: #9a6020; line-height: 1.6; }
+
+  .meal-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .meal-card:hover { box-shadow: 0 2px 16px rgba(0,0,0,0.06); }
+  .meal-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    gap: 12px;
+  }
+  .meal-num {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .meal-info { flex: 1; min-width: 0; }
+  .meal-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+  }
+  .meal-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .meal-arrow {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    color: var(--muted);
+    transition: transform 0.25s, background 0.2s;
+    flex-shrink: 0;
+  }
+  .meal-card.open .meal-arrow {
+    transform: rotate(180deg);
+    background: var(--black);
+    color: white;
+    border-color: var(--black);
+  }
+
+  .meal-body {
+    display: none;
+    border-top: 1px solid var(--border-light);
+    padding: 12px 16px 14px;
+  }
+  .meal-card.open .meal-body { display: block; }
+
+  .opt-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 12px 0 6px;
+  }
+  .opt-label:first-child { margin-top: 0; }
+
+  .food-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border-light);
+    gap: 12px;
+  }
+  .food-row:last-of-type { border-bottom: none; }
+  .food-name { font-size: 13px; color: var(--text); flex: 1; }
+  .food-qty { font-size: 12px; color: var(--muted); white-space: nowrap; text-align: right; }
+
+  .divrow { height: 1px; background: var(--border-light); margin: 4px 0; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+  .b-time { background: var(--tag-time); color: var(--tag-time-text); }
+  .b-green { background: var(--green-light); color: var(--green); }
+  .b-blue { background: var(--blue-light); color: var(--blue); }
+  .b-red { background: var(--red-light); color: var(--red); }
+  .b-opt { background: var(--border-light); color: var(--muted); }
+
+  .note-box {
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .note-blue { background: var(--blue-light); color: #2a4a6c; }
+  .note-green { background: var(--green-light); color: #1e4a2a; }
+  .note-box b { font-weight: 600; }
+
+  .prot-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .pc {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 6px;
+    text-align: center;
+  }
+  .pc-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+  .pc-lbl { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  .tip-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+  .tip {
+    background: white;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 10px 10px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .tip b { font-weight: 600; color: var(--black); }
+
+  .section-divider {
+    height: 1px;
+    background: var(--border-light);
+    margin: 1.25rem 0;
+  }
+
+  .big-quote {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--text);
+    border-left: 3px solid var(--accent);
+    padding-left: 1rem;
+    line-height: 1.5;
+    margin-bottom: 1.25rem;
+  }
+
+  .sci-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .sci-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem;
+  }
+  .sci-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .sci-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .sci-text { font-size: 11px; color: var(--muted); line-height: 1.7; }
+  .sci-text b { color: var(--text); font-weight: 600; }
+
+  .proj-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .proj-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .proj-card.highlight { background: var(--black); border-color: var(--black); }
+  .proj-val {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .proj-card.highlight .proj-val { color: #e8a020; }
+  .proj-per {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .proj-card.highlight .proj-per { color: #e8a020; }
+  .proj-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .proj-card.highlight .proj-desc { color: rgba(255,255,255,0.45); }
+
+  footer {
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 380px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .prot-grid { grid-template-columns: repeat(2, 1fr); }
+    .sci-grid { grid-template-columns: 1fr; }
+    .proj-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="header-eyebrow">Plano Nutricional Personalizado · Abril 2026</div>
+  <div class="header-name">Perder gordura.<br><em>Manter o músculo.</em></div>
+  <div class="header-meta">
+    115kg · 1,80m · 25 anos · musculação + cardio 3x/semana · treino em jejum · <b>99 dias até 31 de julho</b>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val">~1.850</div><div class="stat-lbl">kcal/dia</div></div>
+    <div class="stat"><div class="stat-val">~223g</div><div class="stat-lbl">proteína</div></div>
+    <div class="stat"><div class="stat-val">~110g</div><div class="stat-lbl">carb</div></div>
+    <div class="stat"><div class="stat-val">~660</div><div class="stat-lbl">déficit kcal</div></div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <button class="tab-btn active" onclick="showTab('dieta', this)">Dieta</button>
+  <button class="tab-btn" onclick="showTab('ciencia', this)">Ciência</button>
+</div>
+
+<!-- DIETA -->
+<div id="dieta" class="panel active">
+  <div class="section">
+
+    <div class="fun-card">
+      <div class="fun-title">Calorias da Diversão — 1.500 kcal/semana</div>
+      <div class="fun-text">Pizza, hambúrguer, cerveja, whiskey, sorvete — distribua como quiser. Saldo não usado acumula para a semana seguinte. Já dentro do déficit de ~660 kcal/dia. Sem culpa. Sem dia do lixo. Sem refeição livre. Você gerencia o número, não a comida.</div>
+    </div>
+
+    <div class="eyebrow">Refeições</div>
+    <div class="section-title">Toque para abrir cada refeição</div>
+
+    <!-- 0 TREINO -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">0</div>
+        <div class="meal-info">
+          <div class="meal-name">Treino <span class="badge b-time">06h30 – 08h</span></div>
+          <div class="meal-sub">Em jejum · apenas dias de treino</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Durante o treino</div>
+        <div class="food-row"><span class="food-name">Água</span><span class="food-qty">500ml a 1L</span></div>
+        <div class="food-row"><span class="food-name">Creatina</span><span class="food-qty">5g — antes ou no shake pós-treino</span></div>
+        <div class="note-box note-blue"><b>Dias sem treino:</b> creatina continua em água ou suco. Vá direto para o café da manhã às 08h30.</div>
+      </div>
+    </div>
+
+    <!-- 1 PÓS-TREINO -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">1</div>
+        <div class="meal-info">
+          <div class="meal-name">Pós-treino <span class="badge b-green">07h30 – 08h</span></div>
+          <div class="meal-sub">~240 kcal · ~22g prot · dias de treino</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Sempre assim</div>
+        <div class="food-row"><span class="food-name">Whey protein</span><span class="food-qty">30g — 1 dose exata</span></div>
+        <div class="food-row"><span class="food-name">Leite integral</span><span class="food-qty">200ml</span></div>
+        <div class="note-box note-green"><b>Por que leite integral?</b> A gordura sustenta testosterona e IGF-1. Whey + caseína do leite = proteína de absorção dupla: rápida e sustentada.<br><br><b>Dias sem treino:</b> sem pós-treino. Adicione 1 ovo extra no café da manhã.</div>
+      </div>
+    </div>
+
+    <!-- 2 CAFÉ -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">2</div>
+        <div class="meal-info">
+          <div class="meal-name">Café da manhã <span class="badge b-blue">08h30</span></div>
+          <div class="meal-sub">~340 kcal · ~28g prot</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Opção principal</div>
+        <div class="food-row"><span class="food-name">Ovo mexido ou frito</span><span class="food-qty">2 unidades — 100g</span></div>
+        <div class="food-row"><span class="food-name">Pão francês</span><span class="food-qty">1 unidade — 50g</span></div>
+        <div class="food-row"><span class="food-name">Queijo muçarela</span><span class="food-qty">2 fatias — 40g</span></div>
+        <div class="food-row"><span class="food-name">Fruta</span><span class="food-qty">mamão 120g · banana 55g · tangerina 135g</span></div>
+        <div class="food-row"><span class="food-name">Café preto</span><span class="food-qty">sem açúcar — à vontade</span></div>
+        <div class="divrow"></div>
+        <div class="opt-label">Substituições — monte como quiser</div>
+        <div class="food-row"><span class="food-name">Pão francês → tapioca</span><span class="food-qty">50g de goma</span></div>
+        <div class="food-row"><span class="food-name">Pão francês → pão integral</span><span class="food-qty">2 fatias — 50g</span></div>
+        <div class="food-row"><span class="food-name">Ovo → frango desfiado</span><span class="food-qty">100g</span></div>
+        <div class="food-row"><span class="food-name">Queijo muçarela → requeijão light</span><span class="food-qty">2 col. sopa — 40g</span></div>
+        <div class="note-box note-blue">Combinações livres — troque um ou vários elementos conforme o dia. Caloria e proteína se mantêm equivalentes.</div>
+      </div>
+    </div>
+
+    <!-- 3 ALMOÇO -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">3</div>
+        <div class="meal-info">
+          <div class="meal-name">Almoço <span class="badge b-blue">12h – 13h</span> <span class="badge b-red">100% sólido</span></div>
+          <div class="meal-sub">~490 kcal · ~56g prot</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Proteína — escolha uma</div>
+        <div class="food-row"><span class="food-name">Frango grelhado</span><span class="food-qty">240g</span></div>
+        <div class="food-row"><span class="food-name">Carne vermelha magra grelhada</span><span class="food-qty">240g — patinho, alcatra, coxão mole</span></div>
+        <div class="food-row"><span class="food-name">Peixe grelhado</span><span class="food-qty">240g — tilápia · atum em lata 180g</span></div>
+        <div class="divrow"></div>
+        <div class="opt-label">Carboidrato — escolha um</div>
+        <div class="food-row"><span class="food-name">Arroz branco ou integral cozido</span><span class="food-qty">100g</span></div>
+        <div class="food-row"><span class="food-name">Mandioca cozida</span><span class="food-qty">100g</span></div>
+        <div class="food-row"><span class="food-name">Batata cozida ou na airfryer</span><span class="food-qty">100g — inglesa ou doce</span></div>
+        <div class="divrow"></div>
+        <div class="opt-label">Sempre no prato</div>
+        <div class="food-row"><span class="food-name">Feijão ou lentilha cozidos</span><span class="food-qty">60g — opcional</span></div>
+        <div class="food-row"><span class="food-name">Salada à vontade</span><span class="food-qty">folhas, tomate, pepino, cebola, rúcula</span></div>
+        <div class="food-row"><span class="food-name">Legumes à vontade</span><span class="food-qty">brócolis, abobrinha, couve-flor, espinafre, berinjela</span></div>
+        <div class="food-row"><span class="food-name">Azeite de oliva</span><span class="food-qty">10ml — 1 col. sopa rasa</span></div>
+        <div class="note-box note-blue"><b>Regra simples:</b> 1 proteína + 1 carboidrato + salada à vontade + azeite. Todo dia.<br><br><b>Feijão e lentilha são opcionais.</b> Pular numa refeição não compromete o déficit nem a proteína — a carne já cobre.</div>
+      </div>
+    </div>
+
+    <!-- 4 LANCHE -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">4</div>
+        <div class="meal-info">
+          <div class="meal-name">Lanche da tarde <span class="badge b-blue">15h30 – 16h</span></div>
+          <div class="meal-sub">~310 kcal · ~38g prot · whey fixo · escolha no dia</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Opção A — shake com iogurte</div>
+        <div class="food-row"><span class="food-name">Whey protein</span><span class="food-qty">30g — mistura no iogurte</span></div>
+        <div class="food-row"><span class="food-name">Iogurte desnatado natural</span><span class="food-qty">170g — 1 pote</span></div>
+        <div class="food-row"><span class="food-name">Fruta leve — escolha uma</span><span class="food-qty">banana 55g · morango 100g · uva verde s/semente 100g</span></div>
+        <div class="divrow"></div>
+        <div class="opt-label">Opção B — sanduíche proteico</div>
+        <div class="food-row"><span class="food-name">Pão de forma integral</span><span class="food-qty">2 fatias — 50g</span></div>
+        <div class="food-row"><span class="food-name">Patê de frango com requeijão</span><span class="food-qty">frango desfiado 80g + requeijão light 30g</span></div>
+        <div class="food-row"><span class="food-name">Whey protein</span><span class="food-qty">30g — copo de água ao lado</span></div>
+        <div class="note-box note-blue">O whey é fixo nas duas opções. Opção A: mistura no iogurte. Opção B: copo de água junto com o sanduíche. Escolha no dia conforme praticidade.</div>
+      </div>
+    </div>
+
+    <!-- 5 JANTAR -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">5</div>
+        <div class="meal-info">
+          <div class="meal-name">Jantar <span class="badge b-blue">19h – 20h</span> <span class="badge b-red">100% sólido</span></div>
+          <div class="meal-sub">~290 kcal · ~40g prot · mesma lógica do almoço, menor quantidade</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Proteína — escolha uma</div>
+        <div class="food-row"><span class="food-name">Frango grelhado</span><span class="food-qty">180g</span></div>
+        <div class="food-row"><span class="food-name">Carne vermelha magra grelhada</span><span class="food-qty">180g — patinho, alcatra, coxão mole</span></div>
+        <div class="food-row"><span class="food-name">Peixe grelhado</span><span class="food-qty">180g — tilápia · atum em lata 150g</span></div>
+        <div class="divrow"></div>
+        <div class="opt-label">Carboidrato — escolha um</div>
+        <div class="food-row"><span class="food-name">Arroz branco ou integral cozido</span><span class="food-qty">80g</span></div>
+        <div class="food-row"><span class="food-name">Mandioca cozida</span><span class="food-qty">80g</span></div>
+        <div class="food-row"><span class="food-name">Batata cozida ou na airfryer</span><span class="food-qty">80g — inglesa ou doce</span></div>
+        <div class="divrow"></div>
+        <div class="opt-label">Sempre no prato</div>
+        <div class="food-row"><span class="food-name">Feijão ou lentilha cozidos</span><span class="food-qty">60g — opcional</span></div>
+        <div class="food-row"><span class="food-name">Salada à vontade</span><span class="food-qty">folhas, tomate, pepino, cebola, rúcula</span></div>
+        <div class="food-row"><span class="food-name">Legumes à vontade</span><span class="food-qty">brócolis, abobrinha, couve-flor, espinafre, berinjela</span></div>
+        <div class="food-row"><span class="food-name">Azeite de oliva</span><span class="food-qty">5ml — 1 col. chá</span></div>
+        <div class="note-box note-blue">Mesma lógica do almoço com quantidade menor. Proteína + carboidrato + salada + azeite.</div>
+      </div>
+    </div>
+
+    <!-- 6 CEIA -->
+    <div class="meal-card" onclick="this.classList.toggle('open')">
+      <div class="meal-header">
+        <div class="meal-num">6</div>
+        <div class="meal-info">
+          <div class="meal-name">Ceia <span class="badge b-blue">21h – 21h30</span> <span class="badge b-opt">se tiver fome</span></div>
+          <div class="meal-sub">~180 kcal · ~24g prot</div>
+        </div>
+        <div class="meal-arrow">▼</div>
+      </div>
+      <div class="meal-body">
+        <div class="opt-label">Simples assim</div>
+        <div class="food-row"><span class="food-name">Whey protein</span><span class="food-qty">30g — 1 dose</span></div>
+        <div class="food-row"><span class="food-name">Leite integral</span><span class="food-qty">100ml</span></div>
+        <div class="note-box note-blue">Só faça se tiver fome. A caseína do leite tem absorção lenta de 6–8h — sustenta a noite e alimenta o músculo enquanto o GH age durante o sono.</div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="eyebrow">Resumo proteico</div>
+    <div class="prot-grid">
+      <div class="pc"><div class="pc-val">~223g</div><div class="pc-lbl">proteína total</div></div>
+      <div class="pc"><div class="pc-val">~84g</div><div class="pc-lbl">do whey</div></div>
+      <div class="pc"><div class="pc-val">~139g</div><div class="pc-lbl">comida sólida</div></div>
+      <div class="pc"><div class="pc-val">1,9g/kg</div><div class="pc-lbl">meta atingida</div></div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="eyebrow">Essenciais</div>
+    <div class="tip-list">
+      <div class="tip"><b>Água:</b> 5L/dia. Garrafa de 1L — 5 recargas. Com déficit agressivo e treino em jejum, hidratação é inegociável.</div>
+      <div class="tip"><b>Creatina:</b> 5g todo dia — treino ou não. No shake pós-treino ou em água/suco. Protege a massa muscular no déficit.</div>
+      <div class="tip"><b>Azeite de oliva:</b> 15ml/dia — 10ml no almoço + 5ml no jantar. Ômega-9, anti-inflamatório, absorção das vitaminas A, D, E e K. Não corte.</div>
+      <div class="tip"><b>Whey por mês:</b> ~4 doses/dia treino · ~3 doses/dia sem treino · ~95 doses/mês · <b>~3 potes de 900g por mês.</b></div>
+      <div class="tip"><b>Prep dominical:</b> cozinhe 500g de frango (desfie 160g para o patê do lanche), arroz e batata/mandioca. Geladeira por até 4 dias. Semana sem dor de cabeça.</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CIÊNCIA -->
+<div id="ciencia" class="panel">
+  <div class="section">
+
+    <div class="big-quote">"Se você não entende por que está fazendo algo, dificilmente vai continuar fazendo."</div>
+
+    <div class="eyebrow">Fundamentos</div>
+    <div class="section-title">Por que cada decisão foi tomada assim</div>
+
+    <div class="sci-grid">
+      <div class="sci-card">
+        <div class="sci-num">660</div>
+        <div class="sci-title">kcal de déficit líquido/dia</div>
+        <div class="sci-text">TDEE estimado ~2.800 kcal. Com 1.850 kcal base + 215 kcal/dia de diversão, déficit líquido = ~660 kcal. <b>Acima de 700 kcal com musculação começa a sacrificar músculo</b> mesmo com proteína alta.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">1,9g</div>
+        <div class="sci-title">proteína por kg — preserva o músculo</div>
+        <div class="sci-text">Phillips et al. (2016): <b>1,6–2,2g/kg</b> é a faixa ideal em déficit. Com 115kg = 184–253g. Os ~223g ficam em 1,9g/kg — dentro da faixa, síntese proteica maximizada.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">+20%</div>
+        <div class="sci-title">oxidação de gordura no treino em jejum</div>
+        <div class="sci-text"><b>Journal of Applied Physiology (2011):</b> aumento de ~20% na queima de gordura com insulina baixa. A creatina mantém a força — sem perda de performance.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">5g</div>
+        <div class="sci-title">creatina diária — o suplemento mais estudado</div>
+        <div class="sci-text">Mais de 500 estudos. Em déficit, <b>preserva força e volume muscular</b> mantendo o ATP celular. Efeito cumulativo — não pule nem nos dias sem treino.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">24%</div>
+        <div class="sci-title">aumento de grelina com menos de 7h de sono</div>
+        <div class="sci-text">Spengler et al. (2012): privação eleva fome em 24% e reduz saciedade em 18%. <b>GH liberado entre 23h–01h</b> no sono profundo. Sem sono = sem recuperação muscular real.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">30min</div>
+        <div class="sci-title">janela pós-treino — proteína age mais forte</div>
+        <div class="sci-text">GLUT-4 na superfície da célula muscular — absorção máxima. <b>Whey de absorção rápida</b> bloqueia o catabolismo pós-treino em jejum imediatamente.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">3x</div>
+        <div class="sci-title">mais absorção de ferro com vitamina C</div>
+        <div class="sci-text">Vitamina C converte ferro não-heme dos ovos aumentando absorção em até 3x. <b>A fruta no café não é só saciedade</b> — é estratégia de absorção de micronutrientes.</div>
+      </div>
+      <div class="sci-card">
+        <div class="sci-num">1.500</div>
+        <div class="sci-title">kcal/semana de diversão — por que não zerar?</div>
+        <div class="sci-text">Dietas sem válvula de escape têm taxa de abandono muito maior. <b>Aderência de longo prazo vale mais que déficit perfeito por pouco tempo.</b> 1.500 kcal/sem garante déficit real e sanidade.</div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <div class="eyebrow">Projeção de resultados</div>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <div class="proj-val">~2,5kg</div>
+        <div class="proj-per">4 semanas</div>
+        <div class="proj-desc">Início da mudança visível no espelho</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-val">~5kg</div>
+        <div class="proj-per">8 semanas</div>
+        <div class="proj-desc">Resultado visível na roupa</div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-val">~10–12kg</div>
+        <div class="proj-per">99 dias · julho</div>
+        <div class="proj-desc">Entre 103–105kg. Transformação real e visível.</div>
+      </div>
+      <div class="proj-card highlight">
+        <div class="proj-val">Abaixo de 100kg</div>
+        <div class="proj-per">Com 90%+ aderência</div>
+        <div class="proj-desc">A meta — possível com consistência total nos 99 dias.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  Plano Nutricional · Felipe Stoelben · Abril 2026<br>
+  <span style="font-size:10px">Não substitui acompanhamento profissional de saúde</span>
+</footer>
+
+<script>
+function showTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
